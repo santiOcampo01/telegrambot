@@ -16,6 +16,11 @@ bot.on('message', async msg => {
   const chatId = msg.chat.id
   const messageText = msg.text
 
+  if (!messageText) {
+    bot.sendMessage(chatId, 'Por favor, envíame un mensaje de texto válido.')
+    return
+  }
+
   console.log(`Mensaje recibido: ${messageText}`)
 
   try {
@@ -26,53 +31,52 @@ bot.on('message', async msg => {
   }
 })
 
-
 async function getResponseFromOllama(prompt, chatId) {
   console.log(`Solicitando respuesta de Ollama para el prompt: ${prompt}`)
 
-  const response = await axios.post(
-    'http://localhost:11434/api/generate',
-    {
-      model: 'llama2:latest',
-      prompt: prompt,
-    },
-    {
-      responseType: 'stream',
-    },
-  )
+const response = await axios.post(
+  'http://host.docker.internal:11434/api/generate', // Usa host.docker.internal
+  {
+    model: 'llama2:latest',
+    prompt: prompt,
+  },
+  {
+    responseType: 'stream',
+  },
+)
+
   return new Promise((resolve, reject) => {
     let result = ''
     let messageId 
-    response.data.on('data', async chunk => {
-      try {
-        const data = JSON.parse(chunk.toString())
-        console.log('Fragmento recibido de Ollama:', data)
+response.data.on('data', async chunk => {
+  try {
+    const data = JSON.parse(chunk.toString())
+    console.log('Fragmento recibido de Ollama:', data)
 
-        if (data.response) {
-          result += data.response
+    if (data.response) {
+      result += data.response
 
-          if (!messageId) {
-
-            const sentMessage = await bot.sendMessage(chatId, result)
-            messageId = sentMessage.message_id
-          } else {
-
-            await bot.editMessageText(result, {
-              chat_id: chatId,
-              message_id: messageId,
-            })
-          }
-        }
-
-        if (data.done) {
-          console.log('Respuesta completa de Ollama recibida.')
-          resolve(result)
-        }
-      } catch (error) {
-        console.error('Error al procesar el fragmento de Ollama:', error)
-        reject(error)
+      if (!messageId) {
+        const sentMessage = await bot.sendMessage(chatId, result)
+        messageId = sentMessage.message_id
+      } else {
+        await bot.editMessageText(result, {
+          chat_id: chatId,
+          message_id: messageId,
+        })
       }
-    })
+    }
+
+    if (data.done) {
+      console.log('Respuesta completa de Ollama recibida.')
+      resolve(result)
+    }
+  } catch (error) {
+    console.error('Error al procesar el fragmento de Ollama:', chunk.toString(), error)
+    reject(error)
+  }
+})
+
 
     response.data.on('error', error => {
       console.error('Error en el stream de respuesta de Ollama:', error)
