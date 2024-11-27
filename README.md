@@ -90,4 +90,4 @@ Para resolver este problema, se utilizo **Ngrok**, que permite exponer un servid
    Ejecutamos Ngrok con el comando  **ngrok http 5678** donde le pasamos el puerto donde correra nuestro contenedor de docker con n8n, esto nos generara una url y la pasamos en el docker yml
 
 ## Manejo de Errores en Localhost con Docker
-Video explicativo del flujo en [Youtube](https://www.youtube.com/live/cYZNPf_gmhI?si=XLUXicJMhHKFu2Qy)
+Video explicativo del flujo en [Youtube](https://youtu.be/E5G6TFO2b44)
