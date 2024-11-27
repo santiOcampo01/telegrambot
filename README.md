@@ -4,7 +4,7 @@ Este documento describe cómo se creó un bot de Telegram e integró con varias 
 
 ---
 
-##imagen del flujo
+## imagen del flujo
 ![image](https://github.com/user-attachments/assets/5d88424c-8d92-4b72-ae1b-4ba9d572e4d4)
 
 
